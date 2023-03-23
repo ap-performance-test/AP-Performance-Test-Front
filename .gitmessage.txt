@@ -23,3 +23,6 @@
 # chore : 빌드 부분 혹은 패키지 매니저 수정사항
 ################
 
+refact : delete App.css, vite-env.d.ts
+
+Remove unused files - App.css, vite-env.d.ts
