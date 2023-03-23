@@ -1,3 +1,4 @@
-refact : delete App.css, vite-env.d.ts
+feat: Add title and summary
 
-Remove unused files - App.css, vite-env.d.ts
+- Add title and summary feature
+- Implement UI for title and summary
