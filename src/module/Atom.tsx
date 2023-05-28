@@ -1,5 +1,4 @@
 import { atom } from 'recoil';
-import { SpeedTestData } from '../librespeed/SpeedtestManager';
 
 /* Atom */
 export const floorState = atom({
@@ -57,31 +56,24 @@ export const MeasuredDateArrayState = atom<MeasuredDate[]>({
   default: [],
 });
 
-// interface NetworkIndex {
-//   avgPing: number;
-//   jitter: number;
-//   downstreamSpeed: number;
-//   upstreamSpeed: number;
-// }
+interface NetworkIndex {
+  avgPing: number;
+  jitter: number;
+  downstreamSpeed: number;
+  upstreamSpeed: number;
+}
 
-export const speedTestDataState = atom<SpeedTestData>({
-  key: 'speedTestDataState',
+export const NetWorkIndexState = atom({
+  key: 'NetWorkIndexState',
   default: {
-    testState: 0,
-    dlStatus: 0,
-    ulStatus: 0,
-    pingStatus: 0,
-    clientIp: '',
-    jitterStatus: 0,
-    dlProgress: 0,
-    ulProgress: 0,
-    pingProgress: 0,
-    testId: '',
+    avgPing: 0,
+    jitter: 0,
+    upstreamSpeed: 0,
+    downstreamSpeed: 0,
   },
 });
 
-// 시각화 관련
-export const PositionSpeedMapState = atom<Map<string, SpeedTestData[]>>({
+export const PositionSpeedMapState = atom<Map<string, NetworkIndex[]>>({
   key: 'PositionSpeedMapState',
-  default: new Map<string, SpeedTestData[]>(),
+  default: new Map<string, NetworkIndex[]>(),
 });
