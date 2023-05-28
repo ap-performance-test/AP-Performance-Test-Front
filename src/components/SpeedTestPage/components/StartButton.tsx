@@ -1,68 +1,49 @@
 import { useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 import { Box, Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
-import SocketClient, { MeasurementResult } from './SocketClient';
 import {
   startToggleState,
   floorState,
   roomState,
   locationClassState,
   cookieState,
+  NetWorkIndexState,
 } from '../../../module/Atom';
-
-const host = '192.168.0.147';
-const httpUrl = `http://${host}:3000/api/save_speedtest`;
-const socketUrl = `ws://${host}:3000`;
-const { handleClick } = SocketClient(socketUrl);
+import SpeedtestManager from '../../../librespeed/SpeedtestManager';
 
 const StartButton = () => {
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
-  const setStartToggle = useSetRecoilState(startToggleState);
-  const makedCookie = useRecoilValue(cookieState);
+  const [startToggle, setStartToggle] = useRecoilState(startToggleState);
+  const setNetWorkIndex = useSetRecoilState(NetWorkIndexState);
+  const userCookie = useRecoilValue(cookieState);
 
   // START 버튼 기능 전제조건
-  const floor = useRecoilValue(floorState);
-  const room = useRecoilValue(roomState);
+  const floorNumber = useRecoilValue(floorState);
+  const roomNumber = useRecoilValue(roomState);
   const locationClass = useRecoilValue(locationClassState);
+  const { handleClick, pingStatus, jitterStatus, dlStatus, ulStatus } =
+    SpeedtestManager();
+  // () => {
+  //   console.log('select server');
+  // },
+  // () => {
+  //   console.log('on end');
+  // }
 
-  const sendDataToServer = async (measurementResult: MeasurementResult) => {
-    try {
-      // 측정 데이터를 서버에 보냄 || 독립개체
-      const response = await fetch(httpUrl, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Cookie: '쿠키이름=쿠키값',
-        },
-        body: JSON.stringify(measurementResult),
-      });
-      const result = await response.json();
-      console.log('Data sent to server:', result);
-    } catch (error) {
-      console.error('Error sending data to server:', error);
-    }
-  };
+  // );
 
   // START onClick Func
   const onClickStartButton = async () => {
-    if (floor === '' || room === '' || locationClass === '') {
+    if (floorNumber === '' || roomNumber === '' || locationClass === '') {
       setPopupOpen(true);
     } else {
-      setStartToggle(prev => !prev);
+      setStartToggle(false);
 
       try {
         // handleClick() -> 속도 측정 함수
-        const resultFromMeasurement = await handleClick();
-        await sendDataToServer(resultFromMeasurement);
-
-        console.log(
-          `Average Ping: ${resultFromMeasurement.avgPing}ms, Jitter: ${resultFromMeasurement.jitter}ms`
-        );
-        console.log(
-          `upstream: ${resultFromMeasurement.upstreamSpeed}, downstream: ${resultFromMeasurement.downstreamSpeed}`
-        );
+        handleClick();
+        // const resultFromMeasurement = await handleClick();
+        // await sendDataToServer(resultFromMeasurement);
       } catch (error) {
         console.log(error);
       }
@@ -80,7 +61,7 @@ const StartButton = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '15vh',
+          height: '10vh',
         }}
       >
         <Button
@@ -97,6 +78,7 @@ const StartButton = () => {
               backgroundColor: '#FFF',
               color: '#1976d2',
             },
+            height: '50px',
           }}
         >
           START
@@ -107,6 +89,18 @@ const StartButton = () => {
             <Button onClick={popupClose}>확인</Button>
           </DialogActions>
         </Dialog>
+        <div>
+          <span>Download: {dlStatus} Mbps</span>
+        </div>
+        <div>
+          <span>Upload: {ulStatus} Mbps</span>
+        </div>
+        <div>
+          <span>Ping: {pingStatus} ms</span>
+        </div>
+        <div>
+          <span>Jitter: {jitterStatus} ms</span>
+        </div>
       </Box>
     </div>
   );
